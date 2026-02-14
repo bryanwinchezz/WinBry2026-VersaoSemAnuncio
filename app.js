@@ -418,6 +418,8 @@ async function loadUnlimitedUpcoming() {
     next.className = 'carousel-btn next';
     next.innerHTML = '<i class="fas fa-chevron-right"></i>';
 
+    let htmlAcumulado = ''; // 1. Cria variável
+
     combinados.forEach(item => {
         let dataFormatada = "EM BREVE";
         if (item.date_sort) {
@@ -431,15 +433,17 @@ async function loadUnlimitedUpcoming() {
         // Badge diferenciado (opcional, mas ajuda a saber se é série ou filme)
         const typeLabel = item.media_type === 'tv' ? 'SÉRIE' : 'FILME';
 
-        const html = `
-        <a href="detalhes.html?id=${item.id}&type=${item.media_type}" class="content-card upcoming-card">
-            <div style="position: relative; width: 100%; height: 100%;">
-                <img src="${poster}" alt="${titulo}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
-                <div class="date-badge">${dataFormatada}</div>
-            </div>
-        </a>`;
-        carousel.innerHTML += html;
+        htmlAcumulado += `
+    <a href="detalhes.html?id=${item.id}&type=${item.media_type}" class="content-card upcoming-card">
+        <div style="position: relative; width: 100%; height: 100%;">
+            <img src="${poster}" alt="${titulo}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+            <div class="date-badge">${dataFormatada}</div>
+        </div>
+    </a>`;
     });
+
+    // 3. Joga na tela UMA VEZ SÓ no final do loop
+    carousel.innerHTML = htmlAcumulado;
 
     prev.onclick = () => carousel.scrollBy({ left: -300, behavior: 'smooth' });
     next.onclick = () => carousel.scrollBy({ left: 300, behavior: 'smooth' });
@@ -913,17 +917,40 @@ function setupHeroBanner(item) {
 function renderCarousel(sectionId, title, items, type) {
     const section = document.getElementById(sectionId);
     if (!section) return;
+
     const container = section.querySelector('.container');
+
+    // 1. Limpa e coloca o título
     container.innerHTML = `<h2>${title}</h2>`;
+
     const wrapper = document.createElement('div');
     wrapper.className = 'carousel-wrapper';
+
     const carousel = document.createElement('div');
     carousel.className = 'carousel';
-    items.forEach(item => carousel.innerHTML += createCardHTML(item, type));
 
-    const prev = document.createElement('button'); prev.className = 'carousel-btn prev'; prev.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    // --- A CORREÇÃO MÁGICA AQUI ---
+    // Criamos uma variável na memória para guardar todo o HTML
+    let htmlAcumulado = '';
+
+    items.forEach(item => {
+        // Soma o HTML na variável (super rápido)
+        htmlAcumulado += createCardHTML(item, type);
+    });
+
+    // Joga na tela UMA VEZ SÓ (a TV agradece!)
+    carousel.innerHTML = htmlAcumulado;
+    // -----------------------------
+
+    // Botões de Navegação
+    const prev = document.createElement('button');
+    prev.className = 'carousel-btn prev';
+    prev.innerHTML = '<i class="fas fa-chevron-left"></i>';
     prev.onclick = () => carousel.scrollBy({ left: -300, behavior: 'smooth' });
-    const next = document.createElement('button'); next.className = 'carousel-btn next'; next.innerHTML = '<i class="fas fa-chevron-right"></i>';
+
+    const next = document.createElement('button');
+    next.className = 'carousel-btn next';
+    next.innerHTML = '<i class="fas fa-chevron-right"></i>';
     next.onclick = () => carousel.scrollBy({ left: 300, behavior: 'smooth' });
 
     wrapper.append(prev, carousel, next);
@@ -1114,7 +1141,9 @@ function initMinhaConta() {
         // ABRIR POP-UP
         btnEdit.onclick = () => {
             // Preenche apenas o nome
-            document.getElementById('edit-name').value = userData?.username || currentUser.displayName || "";
+            // Removemos o ?. e usamos verificação segura
+            const nomeSalvo = (userData && userData.username) ? userData.username : "";
+            document.getElementById('edit-name').value = nomeSalvo || currentUser.displayName || "";
             modal.classList.add('active');
         };
 
@@ -1163,8 +1192,11 @@ function initHeaderUser() {
     const btn = document.getElementById('user-action');
     if (!btn) return;
     if (currentUser) {
-        const img = userData?.profileImage || 'images/favicon.png';
-        const nome = userData?.username?.split(' ')[0] || 'Perfil';
+        // Verifica se userData existe antes de pegar a foto
+        const img = (userData && userData.profileImage) ? userData.profileImage : 'images/favicon.png';
+
+        // Verifica se userData existe antes de pegar o nome e fazer o split
+        const nome = (userData && userData.username) ? userData.username.split(' ')[0] : 'Perfil';
         btn.innerHTML = `<img src="${img}" style="width:28px;height:28px;border-radius:50%;margin-right:8px;object-fit:cover;"> ${nome}`;
         btn.href = 'minha-conta.html';
         btn.classList.remove('btn-primary');
@@ -1302,7 +1334,8 @@ function toggleMinhaLista(item, btn) {
 
 function updateListaButton(btn, id) {
     if (!userData || !btn) return;
-    const exists = userData.minhaLista?.some(i => String(i.id) === String(id));
+    // Verifica se a lista existe antes de rodar o .some()
+    const exists = (userData.minhaLista && userData.minhaLista.some(i => String(i.id) === String(id)));
     if (exists) {
         btn.innerHTML = '<i class="fas fa-check"></i> Na Lista';
         btn.classList.add('active');
@@ -1368,7 +1401,8 @@ function initSaveButton() {
 
 function loadContinueWatching() {
     const section = document.getElementById('continue-watching-section');
-    if (!section || !userData?.history?.length) {
+    // Verificação manual completa
+    if (!section || !userData || !userData.history || !userData.history.length) {
         if (section) section.style.display = 'none';
         return;
     }
@@ -1680,8 +1714,12 @@ const BryIA = {
         const tituloNaTela = document.querySelector('.info-text h1');
         if (tituloNaTela) {
             const titulo = tituloNaTela.innerText;
-            const nota = document.querySelector('.star-rating')?.innerText || "N/A";
-            const sinopse = document.querySelector('#synopsis-content')?.innerText || "";
+            // Cria variáveis para os elementos primeiro
+            const elNota = document.querySelector('.star-rating');
+            const nota = elNota ? elNota.innerText : "N/A";
+
+            const elSinopse = document.querySelector('#synopsis-content');
+            const sinopse = elSinopse ? elSinopse.innerText : "";
 
             contextoPagina = `
             CONTEXTO ATUAL: O usuário está na página de detalhes assistindo: "${titulo}".
@@ -1722,7 +1760,9 @@ const BryIA = {
             // Identifica erro de limite (429)
             if (response.status === 429) throw new Error("429 - Limite Atingido");
             if (response.status === 404) throw new Error("Modelo não disponível na sua conta.");
-            throw new Error(data.error?.message || "Erro na API");
+            // Verifica se data.error existe antes de pegar a message
+            const msgErro = (data.error && data.error.message) ? data.error.message : "Erro na API";
+            throw new Error(msgErro);
         }
 
         return data.candidates[0].content.parts[0].text;
@@ -2030,4 +2070,62 @@ function initGlobalLoader() {
             }, 1000);
         }
     });
+}
+
+// --- FUNÇÕES DE AUTH QUE FALTAVAM ---
+
+function initLogin(form) {
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+        const btn = form.querySelector('button');
+
+        try {
+            btn.disabled = true;
+            btn.innerText = "Entrando...";
+            await auth.signInWithEmailAndPassword(email, senha);
+            window.location.href = 'index.html';
+        } catch (error) {
+            btn.disabled = false;
+            btn.innerText = "Entrar";
+            const msg = (typeof getFirebaseErrorMessage === 'function') ? getFirebaseErrorMessage(error) : error.message;
+            showToast(msg, "error");
+        }
+    }
+}
+
+function initCadastro(form) {
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const nome = document.getElementById('nome').value;
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+        const confSenha = document.getElementById('confirmar-senha').value;
+
+        if (senha !== confSenha) return showToast("As senhas não coincidem", "error");
+
+        try {
+            showToast("Criando conta...", "info");
+            const userCred = await auth.createUserWithEmailAndPassword(email, senha);
+
+            // Salva nome
+            await userCred.user.updateProfile({ displayName: nome });
+
+            // Cria no Banco
+            await db.collection('users').doc(userCred.user.uid).set({
+                username: nome,
+                email: email,
+                minhaLista: [],
+                history: []
+            });
+
+            showToast("Conta criada com sucesso!", "success");
+            setTimeout(() => window.location.href = 'index.html', 1500);
+
+        } catch (error) {
+            const msg = (typeof getFirebaseErrorMessage === 'function') ? getFirebaseErrorMessage(error) : error.message;
+            showToast(msg, "error");
+        }
+    }
 }
