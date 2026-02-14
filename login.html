@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WinBry+ | Login</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/3.32.1/minified.js"></script>
+  <link rel="icon" href="images/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#e50914">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body class="dark-mode login-page">
+  <div class="login-bg"></div>
+  <div class="login-overlay"></div>
+
+  <div class="auth-wrapper">
+    <div class="auth-box glass-effect">
+      <div class="logo-animation">
+        <a href="index.html" class="logo-auth">WinBry+</a>
+      </div>
+
+      <h2>Quem está assistindo?</h2>
+      <p class="login-subtitle">Entre com sua conta Google para desbloquear o universo de filmes e séries mais expandido.</p>
+
+      <button id="btn-google-login" class="btn-google-premium">
+        <div class="google-icon-wrapper">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
+        </div>
+        <span>Continuar com Google</span>
+      </button>
+
+      <div class="login-footer">
+        <p>Ambiente seguro e autenticado pelo Google.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,3344 @@
+/* --- ATIVA MODO "APP" (Transição Suave entre Páginas) --- */
+@view-transition {
+    navigation: auto;
+}
+
+/* Personaliza a suavidade da troca de tela */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.5s;
+    animation-timing-function: ease-in-out;
+}
+
+:root {
+    --color-background-dark: #141414;
+    --color-surface-dark: #1a1a1a;
+    --color-surface-light: #2a2a2a;
+    --color-text-light: #ffffff;
+    --color-text-secondary: #b3b3b3;
+    --color-primary: #e50914;
+    --color-accent: #b0060f;
+    --color-border: #404040;
+    --color-shadow: rgba(0, 0, 0, 0.9);
+    --color-success: #4CAF50;
+    --color-error: #F44336;
+    --color-info: #2196F3;
+    --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --transition-fast: 0.15s ease-in-out;
+    --transition-medium: 0.3s ease-in-out;
+    --card-width: 200px;
+    --card-height: 300px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    background-color: var(--color-background-dark);
+    font-family: var(--font-family-primary);
+    color: var(--color-text-light);
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background-color var(--transition-medium), color var(--transition-medium);
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-xl);
+    width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: 2.5rem;
+}
+
+h2 {
+    font-size: 1.8rem;
+}
+
+h3 {
+    font-size: 1.3rem;
+}
+
+p {
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+}
+
+a {
+    color: var(--color-text-light);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-primary);
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
+    padding: var(--spacing-md) 0;
+    transition: all var(--transition-medium);
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-lg);
+}
+
+.logo a {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    letter-spacing: -1.5px;
+    text-shadow: 0 0 15px rgba(229, 9, 20, 0.6), 0 0 30px rgba(229, 9, 20, 0.3);
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.logo a:hover {
+    color: #ff1f1f;
+    text-shadow: 0 0 25px rgba(229, 9, 20, 0.9), 0 0 50px rgba(229, 9, 20, 0.5);
+    transform: scale(1.05);
+}
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    gap: var(--spacing-xl);
+}
+
+.main-nav a {
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--color-text-secondary);
+    border-bottom: 2px solid transparent;
+}
+
+.main-nav a:hover,
+.main-nav a.active {
+    color: var(--color-text-light);
+    border-bottom-color: var(--color-primary);
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    padding: 8px 16px;
+    gap: 8px;
+    transition: all var(--transition-fast);
+}
+
+.search-box:focus-within {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--color-primary);
+}
+
+.search-box input {
+    background: none;
+    border: none;
+    color: var(--color-text-light);
+    outline: none;
+    width: 180px;
+    font-size: 0.9rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    gap: var(--spacing-sm);
+    white-space: nowrap;
+    font-size: 0.95rem;
+    transition: transform var(--transition-fast), background-color var(--transition-fast);
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-accent);
+    transform: scale(1.05);
+}
+
+/* 1. Assistir Agora: SEMPRE Vermelho */
+.btn-play {
+    background-color: var(--color-primary);
+    /* Vermelho */
+    color: #ffffff;
+    /* Texto Branco */
+    padding: 12px 32px;
+    font-size: 1rem;
+    transition: transform 0.2s, background-color 0.2s;
+    border: none;
+}
+
+.btn-play:hover {
+    background-color: var(--color-accent);
+    /* Vermelho mais escuro */
+    transform: scale(1.05);
+    color: #ffffff;
+}
+
+/* 2. Mais Informações: SEMPRE Cinza Translúcido */
+.btn-info {
+    background-color: rgba(109, 109, 110, 0.7);
+    color: #ffffff !important;
+    /* Força texto branco sempre */
+    padding: 12px 28px;
+    font-size: 1rem;
+    transition: transform 0.2s, background-color 0.2s;
+    border: none;
+}
+
+.btn-info:hover {
+    background-color: rgba(109, 109, 110, 0.9);
+    /* Levemente mais escuro */
+    color: #ffffff !important;
+    /* NÃO muda a cor do texto */
+    transform: scale(1.05);
+    /* Apenas cresce */
+}
+
+.btn-trailer,
+.btn-lista {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-text-light);
+    border: 1px solid var(--color-text-light);
+    padding: 12px 28px;
+}
+
+.btn-trailer:hover,
+.btn-lista:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-lista.active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--color-text-light);
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover {
+    color: var(--color-primary);
+    transform: scale(1.1);
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--color-text-light);
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.hero-banner {
+    position: relative;
+    height: 80vh;
+    display: flex;
+    align-items: flex-end;
+    color: #ffffff !important;
+}
+
+.banner-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+.hero-banner::after {
+    /* content: ''; */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 101%;
+    z-index: 2;
+    background: linear-gradient(to top, #141414 0%, #141414 5%, rgba(20, 20, 20, 0.8) 25%, rgba(20, 20, 20, 0.4) 60%, transparent 100%);
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 3;
+    max-width: 600px;
+    padding-bottom: 60px;
+}
+
+.hero-content h1,
+.hero-content p {
+    color: #ffffff !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+
+.hero-content h1 {
+    font-size: 3.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-xl);
+}
+
+.hero-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.content-section {
+    padding: var(--spacing-xl) 0;
+    position: relative;
+    z-index: 10;
+}
+
+.content-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: var(--spacing-lg);
+    margin-left: 80px;
+    /* Mantém alinhado com as setas */
+
+    /* ADICIONADO: Estilo da Linha Vermelha */
+    border-left: 5px solid var(--color-primary);
+    padding-left: 15px;
+    line-height: 1.2;
+}
+
+.carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+    padding: 0 60px;
+}
+
+.carousel {
+    display: flex;
+    overflow-x: scroll;
+    gap: 16px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    padding: 50px 20px;
+    scrollbar-width: none;
+}
+
+.carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #1a1a1a;
+    color: white;
+    border: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    font-size: 1.2rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+}
+
+.carousel-btn.prev {
+    left: 5px;
+}
+
+.carousel-btn.next {
+    right: 5px;
+}
+
+.carousel-wrapper:hover .carousel-btn {
+    opacity: 1;
+}
+
+.carousel-btn:hover {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg) 0;
+}
+
+.content-card {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: var(--card-width);
+    max-width: var(--card-width);
+    height: var(--card-height);
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
+}
+
+.content-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
+    z-index: 100;
+}
+
+.content-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease, filter 0.3s ease;
+}
+
+/* CORREÇÃO: Não escurecer a imagem ao passar o mouse */
+.content-card:hover img {
+    /* filter: brightness(0.6);  <-- REMOVIDO */
+    filter: none;
+    /* Mantém a cor original */
+    transform: scale(1.1);
+    /* Mantém apenas o zoom */
+}
+
+/* CORREÇÃO: Degradê mais suave e curto no rodapé do card */
+.card-info {
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    padding: 20px 15px 15px 15px;
+    /* Degradê começa mais embaixo, deixando a imagem mais visível */
+    background: linear-gradient(to top,
+            #000 0%,
+            rgba(0, 0, 0, 0.8) 40%,
+            transparent 100%);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 2;
+}
+
+.content-card:hover .card-info {
+    transform: translateY(0);
+}
+
+.card-info h3 {
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-info p {
+    font-size: 0.85rem;
+    color: #ddd;
+    margin: 0;
+}
+
+.hubs-section {
+    padding: 60px 0;
+    text-align: center;
+}
+
+.hubs-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 20px;
+    justify-items: center;
+    margin-top: 30px;
+    padding: 30px 20px;
+}
+
+.hubs-container::-webkit-scrollbar {
+    display: none;
+}
+
+.hub-item {
+    width: 160px;
+    height: 160px;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #1f1f1f, #2a2a2a);
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.hub-item:hover {
+    transform: scale(1.1) translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    background: #2a2a2a;
+}
+
+.hub-item img {
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+    filter: grayscale(100%) opacity(0.7);
+    transition: all 0.4s ease;
+}
+
+.hub-item:hover img {
+    filter: grayscale(0%) opacity(1);
+    transform: scale(1.05);
+}
+
+/* --- 1. CORREÇÃO DO ALINHAMENTO (Para o título não subir) --- */
+.details-header {
+    position: relative;
+    min-height: 85vh;
+    /* Altura mínima para caber textos grandes */
+    height: auto;
+    /* Permite crescer se o texto for muito longo */
+    background-size: cover;
+    background-position: center top;
+    display: flex;
+    align-items: flex-start;
+    /* MUDANÇA CRUCIAL: Alinha no topo */
+    padding-top: 15vh;
+    /* Empurra o conteúdo para baixo visualmente */
+}
+
+.details-header .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, var(--color-background-dark) 5%, rgba(0, 0, 0, 0.8) 25%, rgba(0, 0, 0, 0.2) 60%, rgba(0, 0, 0, 0.8) 100%);
+    z-index: 1;
+}
+
+.details-info {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    gap: var(--spacing-xl);
+    align-items: flex-end;
+    padding: var(--spacing-xl);
+    padding-bottom: 60px;
+    width: 100%;
+}
+
+.details-poster {
+    width: 220px;
+    height: 320px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.details-poster:hover {
+    transform: scale(1.02) translateY(-5px);
+    border-color: var(--color-primary);
+}
+
+.details-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.info-text {
+    flex: 1;
+}
+
+.info-text h1 {
+    font-size: 2.8rem;
+    text-shadow: 2px 2px 8px var(--color-shadow);
+}
+
+.info-text .meta-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    color: var(--color-text-secondary);
+}
+
+.classificacao {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.qualidade {
+    border: 1px solid var(--color-text-secondary);
+    padding: 0 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.elenco {
+    margin-top: 20px;
+    color: var(--color-text-secondary);
+}
+
+.page-header {
+    padding-top: 120px;
+    margin-bottom: 60px;
+    text-align: center;
+}
+
+.account-info-card {
+    background: linear-gradient(145deg, #1a1a1a, #141414);
+    width: 90%;
+    max-width: 1000px;
+    padding: 50px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+    margin: 160px auto 80px auto !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.account-info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+}
+
+.card-title {
+    text-align: left;
+    font-size: 1.8rem;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.card-content-wrapper {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+}
+
+.profile-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 250px;
+    flex-shrink: 0;
+}
+
+#profile-pic {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--color-surface-dark);
+    box-shadow: 0 0 0 3px var(--color-primary), 0 10px 30px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+#profile-pic:hover {
+    transform: scale(1.05);
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.custom-file-upload {
+    border: 1px solid #444;
+    display: inline-block;
+    padding: 8px 20px;
+    cursor: pointer;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.2s;
+    color: #ccc;
+}
+
+.custom-file-upload:hover {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.data-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.data-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.data-group strong {
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.data-group span {
+    font-size: 1.2rem;
+    color: white;
+    font-weight: 500;
+    width: 100%;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #333;
+}
+
+.plan-badge {
+    color: var(--color-primary) !important;
+    font-weight: 800 !important;
+    text-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
+    border-bottom: none !important;
+}
+
+.btn-logout {
+    margin-top: 20px;
+    background: transparent;
+    border: 1px solid #444;
+    color: #888;
+    padding: 12px 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    align-self: flex-start;
+}
+
+.btn-logout:hover {
+    border-color: var(--color-error);
+    color: var(--color-error);
+    background: rgba(244, 67, 54, 0.05);
+}
+
+.content-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    /* Garante que ocupe a largura da coluna do grid */
+}
+
+/* Ajuste fino para o botão ficar bonito */
+.btn-remove-lista {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    color: #ff4444;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-remove-lista:hover {
+    background-color: #ff4444;
+    color: white;
+    border-color: #ff4444;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-text-secondary);
+}
+
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    background: radial-gradient(circle at center, #1f1f1f 0%, #000000 100%);
+    padding: 20px;
+}
+
+.auth-box {
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    padding: 60px 40px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    animation: slideUpFade 0.6s ease-out;
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.logo-auth {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    text-align: center;
+    margin-bottom: 30px;
+    letter-spacing: -1px;
+    text-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+}
+
+.auth-box h2 {
+    color: #fff;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    font-weight: 700;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    color: #8c8c8c;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    background: #333;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 1rem;
+    padding: 0 16px;
+    transition: all 0.2s ease;
+    outline: none;
+    font-family: inherit;
+}
+
+.form-group input,
+.form-group select {
+    height: 50px;
+}
+
+.form-group textarea {
+    padding: 12px 16px;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    background: #444;
+    border-bottom: 2px solid var(--color-primary);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 20px;
+    height: 48px;
+    font-size: 1.1rem;
+}
+
+.auth-link {
+    margin-top: 20px;
+    color: #737373;
+    font-size: 0.95rem;
+}
+
+.auth-link a {
+    color: #fff;
+    font-weight: 500;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+    color: var(--color-primary);
+}
+
+.auth-box.success-message {
+    text-align: center;
+}
+
+.auth-box.success-message h2 {
+    color: var(--color-success);
+    font-size: 2rem;
+}
+
+.check-icon {
+    font-size: 4rem;
+    color: var(--color-success);
+    margin-bottom: 20px;
+    display: inline-block;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    80% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.star-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.star-rating .far {
+    color: #555;
+}
+
+.score-text {
+    margin-left: 10px;
+    font-size: 1rem;
+    color: #ddd;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.progress-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.3);
+    z-index: 5;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--color-primary);
+    box-shadow: 0 0 10px var(--color-primary);
+    transition: width 0.3s ease;
+}
+
+.video-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-modal.show {
+    display: flex;
+}
+
+.video-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 1100px;
+    max-height: 90vh;
+    background: #000;
+    border-radius: 8px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.close-btn-custom {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 35px;
+    height: 35px;
+    background-color: rgba(229, 9, 20, 0.9);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 3000;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    transition: transform 0.2s;
+}
+
+.close-btn-custom:hover {
+    transform: scale(1.1);
+    background-color: #ff0000;
+}
+
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    height: 0;
+    background: #000;
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.player-controls {
+    background-color: #141414;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    border-top: 1px solid #333;
+    flex-wrap: wrap;
+}
+
+.control-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.border-left {
+    border-left: 1px solid #444;
+    padding-left: 20px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.label-title {
+    color: #ccc;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.player-controls input {
+    width: 80px;
+    padding: 8px;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    outline: none;
+    font-size: 1rem;
+}
+
+.player-controls input:focus {
+    border-color: var(--color-primary);
+    background: #333;
+}
+
+.player-controls input::-webkit-outer-spin-button,
+.player-controls input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.unit {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.btn-save {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: auto;
+}
+
+.btn-save:hover {
+    background: #b0060f;
+}
+
+.episode-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.95);
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    border-left: 3px solid var(--color-primary);
+    z-index: 5;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.badge-time {
+    color: #ffffff;
+    font-weight: 800;
+    margin: 0;
+    padding: 0;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 16px 24px;
+    border-radius: 4px;
+    color: white;
+
+    z-index: 10001 !important;
+    /* <--- A MUDANÇA: Acima do Modal (9999) */
+
+    transform: translateX(200%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    /* Sombra para destacar */
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.success {
+    background-color: var(--color-success);
+}
+
+.toast.error {
+    background-color: var(--color-error);
+}
+
+.toast.info {
+    background-color: var(--color-info);
+}
+
+footer {
+    background-color: #000000;
+    border-top: 1px solid #333;
+    padding: 30px 0 40px;
+    text-align: center;
+    margin-top: 80px;
+}
+
+footer p {
+    color: #808080;
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.social-links a {
+    color: #fff;
+    font-size: 1.5rem;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.social-links a:hover {
+    opacity: 1;
+    transform: translateY(-3px);
+    background-color: var(--color-primary);
+    box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
+}
+
+body.light-mode {
+    --color-background-dark: #f0f2f5;
+    --color-surface-dark: #ffffff;
+    --color-surface-light: #e4e6eb;
+    --color-text-light: #1c1e21;
+    --color-text-secondary: #65676b;
+    --color-border: #ced0d4;
+    --color-shadow: rgba(0, 0, 0, 0.2);
+}
+
+body.light-mode:has(.details-header) {
+    --color-background-dark: #141414 !important;
+    --color-surface-dark: #1a1a1a !important;
+    --color-surface-light: #2a2a2a !important;
+    --color-text-light: #ffffff !important;
+    --color-text-secondary: #b3b3b3 !important;
+    --color-border: #404040 !important;
+    --color-shadow: rgba(0, 0, 0, 0.9) !important;
+}
+
+body.light-mode header {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
+    box-shadow: none;
+    border: none;
+}
+
+body.light-mode .logo a,
+body.light-mode .icon-btn,
+body.light-mode .menu-toggle,
+body.light-mode #user-action,
+body.light-mode #search-icon {
+    color: #ffffff !important;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+}
+
+body.light-mode .logo a {
+    color: var(--color-primary) !important;
+}
+
+body.light-mode .main-nav a {
+    color: #b3b3b3 !important;
+}
+
+body.light-mode .main-nav a:hover,
+body.light-mode .main-nav a.active {
+    color: #ffffff !important;
+    border-bottom-color: var(--color-primary);
+}
+
+body.light-mode .search-box {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+body.light-mode .search-box input {
+    color: #ffffff !important;
+}
+
+body.light-mode .search-box input::placeholder {
+    color: #b3b3b3 !important;
+}
+
+body.light-mode .details-header .overlay {
+    background: linear-gradient(to top, #141414 5%, rgba(0, 0, 0, 0.8) 25%, rgba(0, 0, 0, 0.2) 60%, rgba(0, 0, 0, 0.8) 100%) !important;
+}
+
+body.light-mode .hero-banner::after {
+    background: linear-gradient(to top, #141414 5%, rgba(0, 0, 0, 0.5) 60%, rgba(0, 0, 0, 0.4) 100%) !important;
+}
+
+body.light-mode .hero-content h1,
+body.light-mode .hero-content p,
+body.light-mode .info-text h1,
+body.light-mode .info-text p,
+body.light-mode .meta-info,
+body.light-mode .elenco {
+    color: #ffffff !important;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.9);
+}
+
+body.light-mode .qualidade {
+    border-color: #ffffff !important;
+    color: #ffffff !important;
+}
+
+body.light-mode .classificacao {
+    color: #ffffff !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+body.light-mode .details-poster {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.light-mode:has(.details-header) footer {
+    background-color: #000000;
+    border-top: 1px solid #333;
+}
+
+body.light-mode:has(.details-header) footer p {
+    color: #808080;
+}
+
+body.light-mode .btn-play {
+    background-color: var(--color-primary);
+    color: #ffffff;
+}
+
+body.light-mode .btn-info {
+    background-color: rgba(109, 109, 110, 0.7);
+    color: #ffffff !important;
+}
+
+body.light-mode .btn-trailer,
+body.light-mode .btn-lista {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid #ffffff !important;
+    color: #ffffff !important;
+}
+
+#content-grid,
+#minha-lista-grid,
+.auth-wrapper {
+    padding-top: 80px;
+    min-height: 60vh;
+}
+
+#content-grid h1,
+#minha-lista-grid h1 {
+    margin-bottom: 30px;
+    padding-left: 10px;
+    font-size: 2.5rem;
+    color: var(--color-text-light);
+}
+
+.hero-banner+.content-section {
+    padding-top: var(--spacing-xl);
+}
+
+/* --- ESTILO DA PAGINAÇÃO NUMERADA --- */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 40px 0;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    min-width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    /* Quadrado com ponta levemente arredondada */
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-btn:hover {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+}
+
+.page-btn.active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* =================================================================
+   RESPONSIVIDADE PROFISSIONAL (MOBILE & TABLET)
+   ================================================================= */
+
+/* --- 1. LAPTOPS E TABLETS GRANDES (Max: 1200px) --- */
+@media (max-width: 1200px) {
+    .container {
+        padding: 0 var(--spacing-md);
+    }
+
+    .hero-banner {
+        height: 70vh;
+        /* Banner um pouco menor */
+        background-position: center center;
+    }
+
+    .hero-content h1 {
+        font-size: 3rem;
+    }
+
+    .details-info {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-top: 100px;
+    }
+
+    .details-poster {
+        width: 180px;
+        height: 270px;
+        margin-bottom: var(--spacing-lg);
+        align-self: flex-start;
+        /* Alinha poster à esquerda */
+    }
+
+    .hubs-container {
+        grid-template-columns: repeat(4, 1fr);
+        /* Reduz colunas de marcas */
+        gap: 15px;
+    }
+}
+
+/* --- 2. DISPOSITIVOS MÓVEIS / TABLETS PORTRAIT (Max: 768px) --- */
+@media (max-width: 768px) {
+
+    /* >>> HEADER & NAVEGAÇÃO (Off-Canvas Menu) <<< */
+    header {
+        padding: 15px 0;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(10px);
+    }
+
+    .main-nav ul {
+        position: fixed;
+        top: 70px;
+        right: -100%;
+        width: 80%;
+        /* Menu ocupa 80% da tela */
+        max-width: 300px;
+        height: calc(100vh - 70px);
+        background: #141414;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding-top: 40px;
+        gap: 25px;
+        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 1px solid #333;
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.8);
+        z-index: 999;
+    }
+
+    .main-nav ul.active {
+        right: 0;
+    }
+
+    .menu-toggle {
+        display: block;
+        /* Mostra ícone hamburguer */
+        z-index: 1001;
+    }
+
+    /* >>> HERO SECTION (BANNER) <<< */
+    .hero-banner {
+        height: 65vh;
+        align-items: flex-end;
+    }
+
+    .hero-content {
+        width: 100%;
+        text-align: center;
+        padding: 0 20px 40px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.2rem;
+        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.9);
+    }
+
+    .hero-content p {
+        display: none;
+        /* Esconde descrição longa no mobile para limpar visual */
+    }
+
+    .hero-actions {
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-play,
+    .btn-info {
+        padding: 12px 20px;
+        width: 100%;
+        /* Botões full-width no mobile */
+        max-width: 280px;
+    }
+
+    /* >>> GRID E CONTEÚDO <<< */
+    .content-section h2 {
+        font-size: 1.8rem;
+        margin-bottom: var(--spacing-lg);
+        margin-left: 80px;
+        /* Mantém alinhado com as setas */
+
+        /* ADICIONADO: Estilo da Linha Vermelha */
+        border-left: 5px solid var(--color-primary);
+        padding-left: 15px;
+        line-height: 1.2;
+    }
+
+    /* Transformar Grids em Scroll Horizontal (Estilo Nativo de App) */
+    .hubs-container {
+        display: flex;
+        overflow-x: auto;
+        padding: 20px;
+        gap: 15px;
+        grid-template-columns: none;
+        scroll-snap-type: x mandatory;
+    }
+
+    .hub-item {
+        min-width: 100px;
+        height: 100px;
+        scroll-snap-align: start;
+    }
+
+    /* >>> PERFIL DO USUÁRIO <<< */
+    .account-info-card {
+        width: 95%;
+        margin: 100px auto 40px;
+        padding: 30px 20px;
+        flex-direction: column;
+        /* Empilha foto e dados */
+    }
+
+    .card-content-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .profile-column {
+        width: 100%;
+    }
+
+    .data-column {
+        width: 100%;
+        text-align: left;
+    }
+
+    /* >>> AUTH / LOGIN <<< */
+    .auth-box {
+        padding: 30px 20px;
+        margin: 0 15px;
+    }
+}
+
+/* --- 3. CELULARES PEQUENOS (Max: 480px) --- */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    .logo a {
+        font-size: 1.5rem;
+    }
+
+    .search-box input {
+        width: 120px;
+        /* Reduz busca para caber */
+    }
+
+    /* Botões da Hero ficam mais compactos */
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-play,
+    .btn-info {
+        width: 100%;
+        max-width: none;
+    }
+
+    /* Ajuste fino nos cards do carrossel */
+    .content-card {
+        min-width: 130px;
+        height: 200px;
+    }
+}
+
+/* --- 4. TELAS GIGANTES / TV (Min: 1920px) --- */
+@media (min-width: 1920px) {
+    :root {
+        --card-width: 280px;
+        --card-height: 420px;
+    }
+
+    .container {
+        max-width: 1800px;
+    }
+
+    body {
+        font-size: 18px;
+        /* Aumenta legibilidade em telas grandes */
+    }
+}
+
+/* =================================================================
+   UTILITÁRIOS GLOBAIS (FORA DO MEDIA QUERY)
+   ================================================================= */
+/* Esconder scrollbar mas manter funcionalidade */
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+html {
+    scrollbar-width: none;
+}
+
+/* --- TRANSIÇÃO CINEMATOGRÁFICA (Estilo Netflix) --- */
+
+/* 1. Suaviza a troca do fundo (Fade geral da página) */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.8s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- TRANSIÇÃO REAL (MORPH NETFLIX) --- */
+
+/* 2. Define o "alvo" da transição na página de detalhes */
+.details-poster img {
+    /* Este nome conecta com o javascript e faz a mágica */
+    view-transition-name: poster-morph;
+    contain: layout;
+}
+
+/* 3. Ajusta a velocidade da viagem do poster */
+::view-transition-group(poster-morph) {
+    animation-duration: 0.6s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 4. O texto aparece DEPOIS que o poster chega (Efeito Cascata) */
+.details-info .info-text {
+    opacity: 0;
+    animation: fadeUpText 0.6s ease-out 0.4s forwards;
+}
+
+@keyframes fadeUpText {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- CORREÇÃO DO PISCAR NO LOGIN --- */
+
+/* 1. O container começa invisível (mas ocupando espaço para não pular o layout) */
+.user-actions {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+/* 2. Classe que o JS vai adicionar quando terminar de carregar */
+.user-actions.auth-loaded {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* =================================================================
+   SCROLLBAR INVISÍVEL (Rolagem funciona, Barra desaparece)
+   ================================================================= */
+
+/* 1. Oculta a barra no Chrome, Edge, Safari, Opera */
+::-webkit-scrollbar {
+    display: none !important;
+    /* O comando mágico que apaga a barra */
+}
+
+/* 2. Oculta a barra no Firefox e IE */
+html,
+body {
+    scrollbar-width: none !important;
+    /* Firefox */
+    -ms-overflow-style: none !important;
+    /* IE e Edge antigo */
+
+    /* Garante a estrutura limpa */
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden !important;
+    /* Bloqueia rolagem lateral */
+    background-color: var(--color-background-dark);
+}
+
+/* =================================================================
+   RODAPÉ PERFEITO (Agora ocupa 100% real da tela)
+   ================================================================= */
+footer {
+    /* Como não existe mais barra de rolagem ocupando espaço,
+       o width: 100% agora vai, de verdade, de ponta a ponta. */
+    width: 100%;
+    margin: 0;
+
+    /* Visual */
+    background-color: #000000;
+    border-top: 1px solid #333;
+    padding: 30px 0 40px;
+    text-align: center;
+    margin-top: 80px;
+}
+
+/* =================================================================
+   CORREÇÃO VISUAL MOBILE (Kauan - WinBry+)
+   Foco: Legibilidade em Detalhes + Navegação de Utilitários
+   ================================================================= */
+
+@media (max-width: 768px) {
+
+    /* --- 1. ARRUMANDO A PÁGINA DE DETALHES (O PROBLEMA DA FOTO) --- */
+
+    /* O Fundo ocupa a tela toda e fica fixo (efeito parallax) */
+    .details-header {
+        height: 100vh !important;
+        background-position: center top !important;
+        background-attachment: fixed !important;
+        align-items: flex-end !important;
+        /* Empurra conteúdo p/ baixo */
+        padding-bottom: 90px !important;
+        /* Espaço para não cobrir com o menu */
+    }
+
+    /* O Overlay escurece mais embaixo para o texto brilhar */
+    .details-header .overlay {
+        background: linear-gradient(to bottom,
+                rgba(0, 0, 0, 0.3) 0%,
+                rgba(0, 0, 0, 0.6) 50%,
+                rgba(10, 10, 10, 1) 100%) !important;
+    }
+
+    /* Caixa de Texto com Efeito de Vidro (Legibilidade Total) */
+    .details-info .info-text {
+        background: rgba(0, 0, 0, 0.75);
+        /* Fundo escuro transparente */
+        backdrop-filter: blur(10px);
+        /* Desfoque do fundo (Vidro) */
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        margin: 0 10px;
+        /* Margem lateral */
+    }
+
+    /* Esconde o poster pequeno (capa) no mobile, pois o fundo já é a capa */
+    .details-poster {
+        display: none !important;
+    }
+
+    /* Ajuste dos botões grandes (Assistir/Lista) para ficarem lado a lado */
+    .actions {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px !important;
+    }
+
+    .btn-play,
+    .btn-lista {
+        width: 100% !important;
+        padding: 12px 0 !important;
+        justify-content: center;
+    }
+
+    /* --- 2. CABEÇALHO DE UTILITÁRIOS (PESQUISA, CONTA, LISTA) --- */
+
+    /* Garante que o Header mostre os ícones */
+    .user-actions {
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 15px !important;
+        /* Espaço entre ícones */
+        background: transparent !important;
+        border: none !important;
+    }
+
+    /* Esconde a barra de texto de pesquisa (mostra só a lupa para economizar espaço) */
+    #search-input {
+        display: none !important;
+    }
+
+    .search-box {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+
+    /* Aumenta a área de toque dos ícones */
+    .icon-btn,
+    #search-icon {
+        font-size: 1.3rem !important;
+        padding: 5px !important;
+        color: #fff !important;
+    }
+
+    /* Estiliza o botão de perfil para ser só a foto (bolinha) */
+    #user-action {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        font-size: 0 !important;
+        /* Esconde o nome do usuário */
+    }
+
+    #user-action img {
+        margin: 0 !important;
+        width: 32px !important;
+        height: 32px !important;
+        border: 2px solid var(--color-primary);
+        box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+    }
+
+    /* Se não tiver foto (botão Entrar), mostra texto normal */
+    #user-action:not(:has(img)) {
+        font-size: 0.9rem !important;
+        background-color: var(--color-primary) !important;
+        padding: 5px 12px !important;
+        border-radius: 4px !important;
+    }
+
+    /* CORREÇÃO: Esconde ícones APENAS do Topo (user-actions), mas deixa aparecer embaixo */
+    .user-actions #theme-toggle,
+    .user-actions a[href="formulario.html"] {
+        display: none !important;
+    }
+}
+
+/* =================================================================
+   AJUSTE DE GRADE (3 COLUNAS) - KAUAN
+   Transforma a lista vertical em grade de 3 itens
+   ================================================================= */
+
+@media (max-width: 768px) {
+
+    /* --- 1. GRADE DAS PÁGINAS (Filmes, Séries, Animes) --- */
+    .content-grid {
+        /* O segredo: repeat(3, 1fr) cria 3 colunas de tamanho igual */
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+        /* Espaço menor entre eles para caber tudo */
+        padding: 10px !important;
+    }
+
+    /* Ajusta o tamanho do card para caber na coluna apertada */
+    .content-card {
+        width: 100% !important;
+        min-width: 0 !important;
+        /* Permite encolher abaixo de 200px */
+        height: auto !important;
+        aspect-ratio: 2/3 !important;
+        /* Mantém formato de poster (retângulo em pé) */
+        border-radius: 6px !important;
+    }
+
+    /* Como o poster ficou pequeno (3 na tela), o texto tem que diminuir */
+    .card-info {
+        padding: 6px !important;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%) !important;
+    }
+
+    .card-info h3 {
+        font-size: 0.65rem !important;
+        line-height: 1.1;
+        white-space: normal !important;
+        display: -webkit-box !important;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: 2;
+    }
+
+    .card-info p {
+        display: none !important;
+        /* Esconde o ANO para limpar o visual */
+    }
+
+    /* --- 2. CARROSSEL DA HOME (Filmes Populares) --- */
+    /* Para ficar mais "intuitivo" e mostrar que tem mais pro lado */
+
+    .carousel .content-card {
+        /* Tamanho fixo menor para caber uns 2.5 filmes na tela e instigar o scroll */
+        width: 110px !important;
+        min-width: 110px !important;
+        border-radius: 8px !important;
+    }
+
+    /* Ajuste fino na área de scroll */
+    .carousel {
+        padding-left: 15px !important;
+        gap: 10px !important;
+    }
+
+    .content-section h2 {
+        font-size: 1.1rem !important;
+        /* Título da seção menor */
+        margin-left: 15px !important;
+        margin-bottom: 10px !important;
+        border-left-width: 3px !important;
+        /* Tarja vermelha mais fina */
+    }
+}
+
+/* =================================================================
+   TRUNCAR SINOPSE (LER MAIS) - KAUAN
+   ================================================================= */
+
+/* Classe que limita o texto a 3 linhas */
+.synopsis-text.clamped {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 5px !important;
+}
+
+/* Classe quando estiver expandido (mostra tudo) */
+.synopsis-text.expanded {
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+}
+
+/* 1. NO PC (Telas grandes): Texto completo, botão escondido */
+.synopsis-text {
+    display: block;
+    overflow: visible;
+}
+
+.btn-read-more {
+    display: none !important;
+    /* Esconde o botão no PC */
+}
+
+/* Botão "Ler mais" discreto e bonito */
+.btn-read-more {
+    background: none;
+    border: none;
+    color: #999;
+    font-weight: bold;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.3s;
+}
+
+.btn-read-more:hover {
+    color: var(--color-primary);
+    /* Fica vermelho ao passar o mouse */
+}
+
+/* =================================================================
+   CORREÇÃO FINAL (KAUAN): POSTERS HOME + PESQUISA
+   Copie e cole isso no final do seu style.css
+   ================================================================= */
+
+@media (max-width: 768px) {
+
+    /* --- 1. CORREÇÃO DOS POSTERS (HOME E CARROSSEL) --- */
+    /* Isso força a imagem a ter o formato RETANGULAR EM PÉ (2:3) */
+    .carousel .content-card,
+    .content-grid .content-card {
+        aspect-ratio: 2/3 !important;
+        /* A Mágica: Proporção de Poster */
+        height: auto !important;
+        /* Altura automática baseada na largura */
+        width: 120px !important;
+        /* Largura fixa no carrossel */
+        min-width: 120px !important;
+    }
+
+    /* Garante que a imagem preencha o cartão sem esticar */
+    .content-card img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        /* Corta as bordas se sobrar, mas não achata */
+        border-radius: 6px !important;
+    }
+
+    /* Na grade (Filmes/Séries), o cartão ocupa a largura da coluna */
+    .content-grid .content-card {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    /* --- 2. CORREÇÃO DA PESQUISA MOBILE --- */
+    /* Esconde o input por padrão (o JS vai mostrar quando clicar) */
+    #search-input {
+        display: none;
+        background-color: #1f1f1f !important;
+        border: 1px solid #444 !important;
+        color: white !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Quando o input aparece (via JS), ele precisa de estilo */
+    #search-input[style*="display: block"] {
+        display: block !important;
+        animation: slideInInput 0.3s ease;
+    }
+
+    @keyframes slideInInput {
+        from {
+            width: 0;
+            opacity: 0;
+        }
+
+        to {
+            width: 200px;
+            opacity: 1;
+        }
+    }
+
+    /* Remove padding extra da caixa container para não atrapalhar */
+    .search-box {
+        padding: 0 !important;
+        border: none !important;
+        background: transparent !important;
+    }
+}
+
+/* =================================================================
+   DESIGN PREMIUM CORRIGIDO (Top 10, Categorias e Em Breve)
+   ================================================================= */
+
+/* --- 1. CATEGORIAS (Agora em Carrossel com Setas) --- */
+.category-card {
+    min-width: 200px;
+    /* Largura fixa para o carrossel */
+    height: 100px;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    display: block;
+    margin-right: 10px;
+    /* Espaço entre itens no carrossel */
+}
+
+.category-card:hover {
+    transform: scale(1.05);
+    border-color: var(--color-primary);
+    z-index: 10;
+}
+
+.category-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4);
+}
+
+.category-card:hover img {
+    filter: brightness(0.6);
+}
+
+.category-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.category-overlay h3 {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    margin: 0;
+}
+
+/* =================================================================
+   TOP 10 ESTILO NETFLIX (CORRIGIDO: Proporção e Visibilidade)
+   ================================================================= */
+
+.top10-wrapper .carousel {
+    display: flex;
+    align-items: center;
+    padding: 30px 0 50px 20px;
+    /* Mais espaço embaixo para o número não cortar */
+    overflow-y: visible;
+    /* Garante que o número gigante apareça */
+}
+
+.top10-card-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-right: -30px;
+    /* Aproxima um bloco do outro para sobreposição */
+    transition: transform 0.3s ease;
+    /* Removemos transform scale padrão para evitar distorção inicial */
+}
+
+.top10-card-container:hover {
+    transform: scale(1.1);
+    z-index: 100;
+    /* Traz para frente ao passar o mouse */
+}
+
+/* O NÚMERO GIGANTE */
+.rank-number {
+    font-size: 10rem;
+    font-weight: 900;
+    color: #000000;
+    -webkit-text-stroke: 4px #595959;
+    font-family: 'Arial Black', 'Impact', sans-serif;
+    line-height: 1;
+    position: relative;
+    /* Mudamos para relative para ocupar espaço real */
+    left: 10px;
+    /* Ajuste fino */
+    z-index: 1;
+    letter-spacing: -5px;
+    display: flex;
+    align-items: flex-end;
+    /* Alinha na base */
+}
+
+/* O POSTER (NA FRENTE) */
+.top10-card-container .content-card {
+    /* PROPORÇÃO DE POSTER DE CINEMA (2:3) */
+    width: 150px;
+    height: 225px;
+    min-width: 150px;
+    /* Impede que ele seja esmagado */
+
+    z-index: 2;
+    /* Fica NA FRENTE do número */
+    margin-left: -20px;
+    /* Entra levemente em cima do número (Overlap) */
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.8);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #141414;
+    /* Fundo caso a imagem demore */
+}
+
+/* Garante que a imagem preencha sem distorcer (SEM ACHATAR) */
+.top10-card-container .content-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Corta as bordas se sobrar, mas não estica/achata */
+    display: block;
+}
+
+/* Ajuste específico para o número 1 (que é muito fino) */
+.top10-card-container:first-child .rank-number {
+    margin-right: -10px;
+}
+
+/* --- 3. EM BREVE (Poster Normal + Tarja) --- */
+.upcoming-card {
+    min-width: var(--card-width);
+    /* Usa o tamanho padrão dos outros filmes */
+    height: var(--card-height);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    margin-right: 15px;
+}
+
+.date-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #E50914;
+    color: white;
+    font-weight: 800;
+    text-align: center;
+    padding: 6px 0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    z-index: 10;
+}
+
+/* Wrapper para o item do histórico (para posicionar o botão) */
+.history-item-wrapper {
+    position: relative;
+    display: inline-block;
+    /* Garante que o wrapper tenha o tamanho do card no carrossel */
+    min-width: var(--card-width);
+    max-width: var(--card-width);
+    height: var(--card-height);
+    margin-right: 16px;
+    /* Espaço entre itens */
+}
+
+/* O botão X */
+.btn-remove-history {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: var(--color-primary);
+    color: white;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 200;
+    /* Fica acima do card */
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.btn-remove-history:hover {
+    background-color: #b0060f;
+    transform: scale(1.1);
+}
+
+/* Ajuste Mobile para o wrapper */
+@media (max-width: 768px) {
+    .history-item-wrapper {
+        min-width: 120px;
+        /* Tamanho mobile igual ao card */
+        max-width: 120px;
+        height: auto;
+        aspect-ratio: 2/3;
+    }
+
+    .btn-remove-history {
+        width: 25px;
+        height: 25px;
+        top: -5px;
+        right: -5px;
+    }
+}
+
+/* --- CARROSSEL HERO (BANNER INICIAL) --- */
+.hero-banner {
+    position: relative;
+    height: 85vh;
+    /* Altura do banner */
+    width: 100%;
+    overflow: hidden;
+    background: #000;
+}
+
+.hero-slider {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* Estilo de cada Slide individual */
+.hero-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    /* Começa invisível */
+    visibility: hidden;
+    transition: opacity 0.8s ease-in-out, visibility 0.8s;
+    z-index: 1;
+}
+
+/* O Slide ativo fica visível */
+.hero-slide.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
+}
+
+/* Imagem de Fundo */
+.hero-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* CORREÇÃO DE ILUMINAÇÃO: Sombra apenas na parte inferior para ler o texto */
+.hero-slide::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Antes estava cobrindo tudo. Agora é transparente no meio e no topo */
+    background: linear-gradient(to top,
+            #141414 0%,
+            rgba(20, 20, 20, 0.8) 15%,
+            transparent 50%,
+            rgba(0, 0, 0, 0.2) 100%);
+    pointer-events: none;
+}
+
+/* Conteúdo (Texto e Botões) */
+.hero-content {
+    position: relative;
+    z-index: 10;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* Texto embaixo */
+    padding-bottom: 80px;
+    padding-left: 60px;
+    /* Alinhamento PC */
+    max-width: 800px;
+}
+
+/* Botões de Seta (Esquerda/Direita) */
+.hero-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 20;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    display: flex;
+    /* Centralizar ícone */
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-arrow:hover {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.hero-arrow.prev {
+    left: 20px;
+}
+
+.hero-arrow.next {
+    right: 20px;
+}
+
+/* RESPONSIVIDADE MOBILE */
+@media (max-width: 768px) {
+    .hero-banner {
+        height: 70vh;
+        /* Menor no celular */
+    }
+
+    .hero-content {
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-bottom: 60px;
+        align-items: center;
+        /* Centraliza texto no mobile */
+        text-align: center;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .hero-content p {
+        display: none;
+        /* Esconde sinopse longa no mobile */
+    }
+
+    /* Setas menores no mobile */
+    .hero-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-arrow.prev {
+        left: 5px;
+    }
+
+    .hero-arrow.next {
+        right: 5px;
+    }
+}
+
+/* --- BARRAS DE PROGRESSO CENTRALIZADAS --- */
+
+.hero-indicators {
+    position: absolute;
+    bottom: 20px;
+
+    /* COMANDOS PARA CENTRALIZAR: */
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    gap: 8px;
+    /* Espaço entre as barrinhas */
+    z-index: 20;
+}
+
+/* Opcional: Se quiser as barras um pouco maiores para destacar mais */
+.indicator-bar {
+    width: 50px;
+    /* Eram 40px, aumentei para 50px */
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.indicator-bar:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* O preenchimento que se move (branco) */
+.indicator-fill {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background-color: #fff;
+    /* Cor do preenchimento */
+    border-radius: 2px;
+}
+
+/* A ANIMAÇÃO: Quando a barra está ativa, ela enche em 5 segundos */
+.indicator-bar.active .indicator-fill {
+    width: 100%;
+    /* O tempo "5s" aqui deve ser igual ao tempo do setInterval no Javascript */
+    animation: fillProgress 5s linear forwards;
+}
+
+@keyframes fillProgress {
+    from {
+        width: 0%;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+/* Responsividade: No celular, centralizamos as barras */
+@media (max-width: 768px) {
+    .hero-indicators {
+        right: 50%;
+        transform: translateX(50%);
+        /* Centraliza */
+        bottom: 15px;
+    }
+
+    .indicator-bar {
+        width: 30px;
+        /* Barras um pouco menores no celular */
+    }
+}
+
+/* --- BRY.IA (CHATBOT) --- */
+.bryia-fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, #e50914, #ff6b6b);
+    box-shadow: 0 5px 15px rgba(229, 9, 20, 0.5);
+    cursor: pointer;
+    z-index: 5000;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.bryia-fab:hover {
+    transform: scale(1.1) rotate(10deg);
+}
+
+.bryia-window {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 380px;
+    height: 550px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 5000;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    border: 1px solid #333;
+}
+
+.bryia-window.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+.bryia-header {
+    background: var(--color-primary);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.bryia-title {
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bryia-title span {
+    font-weight: 400;
+    font-size: 0.8rem;
+    opacity: 0.8;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+#close-bryia {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.bryia-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: #141414;
+}
+
+/* Balões de mensagem */
+.message {
+    max-width: 85%;
+    line-height: 1.4;
+    font-size: 0.95rem;
+}
+
+.message.user {
+    align-self: flex-end;
+}
+
+.message.bot {
+    align-self: flex-start;
+}
+
+.message.user .msg-text {
+    background: var(--color-primary);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 15px 15px 2px 15px;
+}
+
+.message.bot .msg-text {
+    background: #2a2a2a;
+    color: #ddd;
+    padding: 10px 15px;
+    border-radius: 15px 15px 15px 2px;
+    border: 1px solid #333;
+}
+
+.bryia-input-area {
+    padding: 15px;
+    background: #1a1a1a;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid #333;
+}
+
+#bryia-input {
+    flex: 1;
+    background: #111;
+    border: 1px solid #333;
+    padding: 10px;
+    border-radius: 20px;
+    color: white;
+    outline: none;
+}
+
+#bryia-send {
+    background: var(--color-primary);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* CARD RICO (RECOMENDAÇÃO) */
+.bryia-card {
+    /* display: flex; */
+    gap: 10px;
+    background: #222;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 8px;
+    border: 1px solid #333;
+    display: none;
+}
+
+.bryia-card img {
+    width: 60px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.bryia-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.bryia-card h4 {
+    font-size: 0.9rem;
+    color: white;
+    margin: 0 0 5px 0;
+}
+
+.bryia-card .btn-play-mini {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    width: fit-content;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .bryia-window {
+        width: 90%;
+        height: 70vh;
+        bottom: 100px;
+        right: 5%;
+    }
+}
+
+/* --- MENU INFERIOR MOBILE --- */
+.bottom-nav {
+    display: none;
+    /* Escondido no PC */
+}
+
+@media (max-width: 768px) {
+
+    /* Esconde o menu antigo e icones do topo no mobile */
+    .menu-toggle,
+    .main-nav {
+        display: none !important;
+    }
+
+    /* Mostra o novo */
+    .bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid #333;
+        justify-content: space-around;
+        padding: 10px 0;
+        z-index: 4000;
+        /* Abaixo do chat da IA */
+        padding-bottom: env(safe-area-inset-bottom);
+        /* Ajuste iPhone */
+    }
+
+    .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #808080;
+        text-decoration: none;
+        font-size: 0.7rem;
+        gap: 4px;
+    }
+
+    .nav-item i {
+        font-size: 1.4rem;
+        margin-bottom: 2px;
+    }
+
+    .nav-item.active,
+    .nav-item:hover {
+        color: white;
+    }
+
+    /* --- AJUSTE BOTÃO IA NO MOBILE (Igual ao Surpreenda-me) --- */
+    .bryia-fab {
+        bottom: 85px !important;
+        /* Mesma altura do outro */
+        right: 20px !important;
+        /* Mesma distância da borda */
+        width: 50px !important;
+        /* Mesmo tamanho */
+        height: 50px !important;
+        /* Mesmo tamanho */
+        font-size: 1.2rem !important;
+        /* Ícone ajustado */
+        border-radius: 50%;
+
+        /* BÔNUS: Gradiente moderno para parecer IA avançada */
+        background: linear-gradient(135deg, #e50914, #ff6b6b);
+        box-shadow: 0 5px 15px rgba(229, 9, 20, 0.5);
+    }
+
+    .bryia-window {
+        bottom: 150px;
+    }
+}
+
+/* --- SKELETON LOADING --- */
+.skeleton {
+    background: linear-gradient(90deg, #1f1f1f 25%, #2a2a2a 50%, #1f1f1f 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Aplica nas imagens enquanto carregam */
+img.loading {
+    opacity: 0;
+}
+
+/* --- BOTÃO SURPREENDA-ME (FLUTUANTE ESQUERDA) --- */
+.surpreenda-fab {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background: #ffffff;
+    color: #000000;
+    padding: 12px 24px;
+    border-radius: 50px;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(255, 255, 255, 0.15);
+    z-index: 5000;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+    border: 2px solid transparent;
+}
+
+.surpreenda-fab i {
+    font-size: 1.1rem;
+    color: var(--color-primary);
+    /* Ícone vermelho */
+}
+
+.surpreenda-fab:hover {
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+}
+
+.surpreenda-fab:active {
+    transform: scale(0.95);
+}
+
+/* Ajuste Mobile: Sobe um pouco por causa do menu inferior */
+@media (max-width: 768px) {
+    .surpreenda-fab {
+        bottom: 85px;
+        /* Alinhado com o botão da IA */
+        left: 20px;
+        padding: 10px 16px;
+        font-size: 0.8rem;
+    }
+
+    .surpreenda-fab span {
+        display: none;
+        /* No celular mostra só o ícone para economizar espaço */
+    }
+
+    .surpreenda-fab {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        justify-content: center;
+        padding: 0;
+    }
+}
+
+/* --- ESTILO MINHA CONTA (CORRIGIDO VERTICAL) --- */
+
+.data-column {
+    display: flex;
+    flex-direction: column;
+    /* FORÇA UM EMBAIXO DO OUTRO */
+    gap: 30px;
+    /* Espaço entre os grupos */
+    width: 100%;
+}
+
+.data-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    position: relative;
+}
+
+.data-group strong {
+    color: #666;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+/* =================================================================
+   ESTILO MINHA CONTA - CAIXAS MODERNAS
+   ================================================================= */
+
+/* Transforma a linha do dado em uma "caixa" */
+.data-value-row {
+    border: 1px solid #444 !important;
+    /* Borda cinza em volta de tudo */
+    border-radius: 8px;
+    /* Cantos arredondados */
+    padding: 12px 15px;
+    /* Espaço interno generoso */
+    background: rgba(255, 255, 255, 0.03);
+    /* Fundo muito sutil */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    /* Separa do título acima */
+    transition: border-color 0.3s;
+}
+
+/* Efeito ao passar o mouse na caixa */
+.data-value-row:hover {
+    border-color: var(--color-primary);
+    /* Borda fica vermelha */
+}
+
+/* Ajusta o texto dentro da caixa */
+.data-group span {
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #eee;
+}
+
+/* Ajusta o botão de lápis dentro da caixa */
+.btn-icon-edit {
+    padding: 8px;
+    margin-left: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    /* Fundo sutil no botão */
+    border-radius: 50%;
+    /* Botão redondo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.btn-icon-edit:hover {
+    background: var(--color-primary);
+    color: white;
+    transform: none;
+    /* Remove o zoom anterior para ficar mais sóbrio */
+}
+
+/* --- APLICAR O MESMO ESTILO AO INPUT DA API KEY PARA COMBINAR --- */
+#user-api-key {
+    border: 1px solid #444 !important;
+    border-radius: 8px !important;
+    padding: 12px 15px !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    margin-top: 8px;
+    flex: 1;
+    /* Ocupa o espaço disponível */
+    color: white !important;
+}
+
+#user-api-key:focus {
+    border-color: var(--color-primary) !important;
+    outline: none;
+}
+
+/* Ajusta o botão Salvar da API Key para ficar na mesma altura */
+#btn-save-key {
+    height: auto !important;
+    padding: 0 20px !important;
+    border-radius: 8px;
+    margin-top: 8px;
+    align-self: stretch;
+    /* Estica na altura do input */
+    display: flex;
+    align-items: center;
+}
+
+/* --- MODAL (POP-UP) --- */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    /* Fica acima de tudo */
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal-overlay.active {
+    display: flex;
+    /* Aparece quando tem a classe active */
+}
+
+.modal-box {
+    background: #141414;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    border: 1px solid #333;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+    animation: popIn 0.3s ease;
+}
+
+.modal-box h3 {
+    margin-bottom: 20px;
+    color: white;
+    border-bottom: 1px solid var(--color-primary);
+    padding-bottom: 10px;
+    display: inline-block;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid #444;
+    color: #ccc;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-ghost:hover {
+    border-color: #fff;
+    color: #fff;
+}
+
+/* --- ESTILO ESPECÍFICO DA PÁGINA DE LOGIN --- */
+.login-page {
+    overflow: hidden;
+    /* Impede rolagem */
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* 1. Fundo com Pôsteres (Imagem de fundo estilo Netflix) */
+.login-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Imagem genérica de colagem de filmes */
+    background-image: url('https://assets.nflxext.com/ffe/siteui/vlv3/c38a2d52-138e-48a3-ab68-36787ece46b3/eeb03fc9-99bf-440f-9695-1647a5078712/BR-pt-20240101-popsignuptwoweeks-perspective_alpha_website_large.jpg');
+    background-size: cover;
+    background-position: center;
+    z-index: 1;
+    animation: zoomBackground 20s infinite alternate;
+    /* Movimento suave */
+}
+
+@keyframes zoomBackground {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.1);
+    }
+}
+
+/* 2. Sobreposição Escura (Para dar leitura) */
+.login-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.9) 100%);
+    z-index: 2;
+}
+
+/* 3. A Caixa de Login (Glassmorphism) */
+.auth-wrapper {
+    position: relative;
+    z-index: 3;
+    /* Fica acima do fundo */
+}
+
+.glass-effect {
+    background: rgba(0, 0, 0, 0.75);
+    /* Fundo preto transparente */
+    backdrop-filter: blur(10px);
+    /* O desfoque mágico */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+    border-radius: 16px;
+    padding: 60px 40px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+}
+
+/* 4. Tipografia e Logo */
+.logo-text {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 3rem;
+    color: var(--color-primary);
+    text-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+    display: block;
+    margin-bottom: 10px;
+    letter-spacing: -2px;
+}
+
+.login-subtitle {
+    color: #ccc;
+    font-size: 1rem;
+    margin-bottom: 40px;
+    line-height: 1.5;
+}
+
+/* 5. Botão Google Premium */
+.btn-google-premium {
+    width: 100%;
+    height: 55px;
+    background-color: white;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 3px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-google-premium:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.google-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    background-color: white;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.google-icon-wrapper img {
+    width: 24px;
+    height: 24px;
+}
+
+.btn-google-premium span {
+    flex: 1;
+    text-align: center;
+    font-weight: 700;
+    color: #444;
+    font-size: 1.1rem;
+    padding-right: 20px;
+    /* Compensa o ícone na esquerda */
+}
+
+.login-footer {
+    margin-top: 30px;
+    font-size: 0.75rem;
+    color: #666;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+
+/* =================================================================
+   LOADER GLOBAL (POR CIMA DE TUDO)
+   ================================================================= */
+
+#global-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #141414;
+    /* Mesma cor do fundo do site */
+    z-index: 2147483647;
+    /* Valor máximo possível no navegador */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Estado Padrão: Invisível e Intocável */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition: opacity 0.4s ease;
+    /* Fade suave ao sumir/aparecer */
+}
+
+/* Quando ativado pelo JS */
+#global-loader.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    /* Bloqueia cliques na tela */
+}
+
+/* Animação do Anel (Semelhante a Netflix/YouTube) */
+.spinner-ring {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--color-primary);
+    /* Vermelho */
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    box-shadow: 0 0 20px rgba(229, 9, 20, 0.2);
+    /* Brilho leve */
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

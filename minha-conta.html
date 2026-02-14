@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WinBry+ | Minha Conta</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/3.32.1/minified.js"></script>
+  <link rel="icon" href="images/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#e50914">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body class="dark-mode">
+  <header>
+    <div class="container">
+      <div class="logo">
+        <a class="btn-log" href="index.html">WinBry+</a>
+      </div>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="filmes.html">Filmes</a></li>
+          <li><a href="series.html">Séries</a></li>
+          <li><a href="animes.html">Animes</a></li>
+        </ul>
+      </nav>
+      <div class="user-actions">
+        <a id="theme-toggle" class="icon-btn"><i class="fas fa-sun"></i></a>
+        <a href="formulario.html" class="icon-btn"><i class="fas fa-comments"></i></a>
+        <a href="minha-lista.html" class="icon-btn"><i class="fas fa-bookmark"></i></a>
+        <a id="user-action" href="login.html" class="btn btn-primary">Entrar</a>
+      </div>
+      <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+    </div>
+  </header>
+
+  <div class="account-info-card">
+    <h2 class="card-title">Configurações da Conta</h2>
+
+    <div class="card-content-wrapper">
+      <div class="profile-column">
+        <img id="profile-pic" src="images/foto-generica.jpg" alt="Foto de Perfil" />
+        <label for="upload-pic" class="custom-file-upload">
+          <i class="fas fa-camera"></i> Alterar Foto
+        </label>
+        <input type="file" id="upload-pic" accept="image/*" />
+      </div>
+
+      <div class="data-column">
+        <div class="data-group">
+          <strong>Nome de Usuário</strong>
+          <div class="data-value-row">
+            <span id="display-username">Carregando...</span>
+            <button id="btn-edit-profile" class="btn-icon-edit" title="Editar Dados">
+              <i class="fas fa-pen"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="data-group">
+          <strong>E-mail de Acesso</strong>
+          <div class="data-value-row">
+            <span id="display-email">Carregando...</span>
+          </div>
+        </div>
+
+        <div class="data-group">
+          <strong>Plano Atual</strong>
+          <span class="plan-badge">Básico</span>
+        </div>
+
+        <div class="data-group">
+          <strong>Chave da API (Gemini AI)</strong>
+          <div style="display:flex; gap:10px; width:100%; align-items: center;">
+            <input type="password" id="user-api-key" placeholder="Cole sua API Key aqui"
+              style="background:transparent; border:none; border-bottom:1px solid #333; color:white; flex:1; padding:8px;">
+            <button id="btn-save-key" class="btn btn-primary"
+              style="padding: 5px 15px; font-size: 0.8rem; height: 30px;">Salvar</button>
+          </div>
+          <small style="color:#666; font-size:0.75rem; margin-top:5px;">Necessário para usar a BryIA.</small>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-logout">Sair da Conta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="edit-profile-modal" class="modal-overlay">
+    <div class="modal-box">
+      <h3>Editar Perfil</h3>
+      <form id="editProfileForm">
+
+        <div class="form-group">
+          <label>Nome de Exibição</label>
+          <input type="text" id="edit-name" required placeholder="Como você quer ser chamado?">
+        </div>
+
+        <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">
+          O e-mail e a foto são gerenciados pela sua conta Google.
+        </p>
+
+        <div class="modal-actions">
+          <button type="button" id="btn-cancel-edit" class="btn-ghost">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 WinBry+ | Todos os direitos reservados.</p>
+      <div class="social-links">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <div id="video-modal" class="video-modal">
+    <div class="video-modal-content">
+      <span id="close-player" class="close-btn">&times;</span>
+      <iframe id="video-iframe" width="100%" height="100%" src="" frameborder="0" allow="autoplay; encrypted-media"
+        allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+
+</html>
