@@ -1693,9 +1693,8 @@ const BryIA = {
             const loadEl = document.getElementById(loadingId);
             if (loadEl) loadEl.remove();
 
-            // Tratamento Elegante de Erros
             if (error.message.includes('429')) {
-                this.appendMsg("😴 Atingi meu limite de pensamentos por agora. Tente daqui a pouco!", 'bot');
+                this.appendMsg("😴 Estou descansando um pouco. Tente novamente em alguns segundos!", 'bot');
             } else {
                 console.error("BryIA Error:", error);
                 this.appendMsg(`Erro: ${error.message}`, 'bot');
@@ -1704,42 +1703,42 @@ const BryIA = {
     },
 
     async callGemini(prompt, key) {
-        const modelName = "gemini-2.5-flash"; // ou gemini-1.5-flash se preferir
+        // MUDANÇA 1: Usando o modelo 1.5 Flash que é muito obediente e rápido
+        const modelName = "gemini-2.5-flash"; 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`;
 
-        // --- CONTEXTO INTELIGENTE (LÊ A TELA) ---
+        // Contexto simples
         let contextoPagina = "";
-
-        // Verifica se está vendo um filme/série
         const tituloNaTela = document.querySelector('.info-text h1');
         if (tituloNaTela) {
-            const titulo = tituloNaTela.innerText;
-            const elNota = document.querySelector('.star-rating');
-            const nota = elNota ? elNota.innerText : "N/A";
-            const elSinopse = document.querySelector('#synopsis-content');
-            const sinopse = elSinopse ? elSinopse.innerText : "";
-
-            contextoPagina = `
-            CONTEXTO: O usuário está na página do filme: "${titulo}". Nota: ${nota}.
-            `;
+            contextoPagina = `O usuário está vendo o filme: "${tituloNaTela.innerText}".`;
         } else if (window.location.pathname.includes('minha-lista')) {
-            contextoPagina = "CONTEXTO: O usuário está na 'Minha Lista'.";
+            contextoPagina = "O usuário está na 'Minha Lista'.";
         }
 
-        // --- A CORREÇÃO PRINCIPAL ESTÁ AQUI (INSTRUÇÃO MAIS FORTE) ---
+        // MUDANÇA 2: Prompt focado em EXEMPLOS (Few-Shot Learning) e BREVIDADE
         const systemInstruction = `
-        Você é a BryIA, assistente do site de filmes WinBry+.
-        Seja simpática e use emojis 🍿.
-        
+        Você é a BryIA, assistente do WinBry+.
         ${contextoPagina}
+
+        SUA MISSÃO:
+        1. Ser simpática, usar emojis 🍿 e falar POUCO (Máximo 2 frases curtas).
+        2. Para sugerir filmes, você É OBRIGADA a usar o formato: [BUSCA:Nome do Filme].
+        3. Nunca liste filmes apenas com texto. Se citar, use o código [BUSCA:...].
+
+        --- EXEMPLOS OBRIGATÓRIOS DE RESPOSTA (IMITE ISSO) ---
+
+        Usuário: "Quero um romance triste."
+        BryIA: "Prepare os lencinhos! 😭 Recomendo muito assistir [BUSCA:A Culpa é das Estrelas]. Outra opção linda é [BUSCA:Como Eu Era Antes de Você]."
+
+        Usuário: "Filme de ação."
+        BryIA: "Com certeza! 💥 Você precisa ver [BUSCA:John Wick 4] ou o clássico [BUSCA:Mad Max: Estrada da Fúria]."
+
+        Usuário: "Me indica uma série."
+        BryIA: "Você vai adorar [BUSCA:Stranger Things]! 👾 É viciante do começo ao fim."
         
-        ⚠️ REGRA SUPREMA DE FUNCIONAMENTO:
-        Sempre que você mencionar um filme ou série, você É OBRIGADA a usar este formato exato: [BUSCA:Nome do Filme].
-        
-        Exemplo ERRADO: "Assista Vingadores, é muito bom."
-        Exemplo CORRETO: "Assista [BUSCA:Vingadores Ultimato], é muito bom."
-        
-        Se você não usar o [BUSCA:...], o botão de assistir NÃO aparecerá para o usuário.
+        -------------------------------------------------------
+        Responda seguindo esses exemplos, com brevidade e usando a tag [BUSCA:...].
         `;
 
         const payload = {
@@ -1760,67 +1759,84 @@ const BryIA = {
 
         if (!response.ok) {
             if (response.status === 429) throw new Error("429 - Limite Atingido");
-            if (response.status === 404) throw new Error("Modelo não disponível na sua conta.");
             const msgErro = (data.error && data.error.message) ? data.error.message : "Erro na API";
             throw new Error(msgErro);
         }
 
-        // Verifica segurança se a resposta veio vazia
         if (!data.candidates || !data.candidates[0].content) {
-            throw new Error("A IA não retornou nada.");
+            throw new Error("Sem resposta da IA.");
         }
 
         return data.candidates[0].content.parts[0].text;
     },
 
     async processResponse(text) {
-        console.log("Resposta Bruta da IA:", text); // Para você ver no Console (F12) se a tag está vindo
+        console.log("Resposta IA:", text);
 
         const searchRegex = /\[BUSCA:(.*?)\]/g;
 
-        // 1. Mostra o texto bonito (transforma a tag feia em negrito)
+        // Remove as tags [BUSCA:...] do texto visível para não ficar feio
+        // A IA vai mandar: "Veja [BUSCA:Batman], é legal."
+        // O usuário vai ler: "Veja Batman, é legal." (E o card aparecerá embaixo)
         let cleanText = text.replace(searchRegex, "<b>$1</b>");
+        
         this.appendMsg(cleanText, 'bot');
 
-        // 2. Busca os filmes para criar os cards
-        // Resetamos o índice do Regex para garantir que o loop funcione do zero
+        // Reinicia regex
         searchRegex.lastIndex = 0;
-
         let match;
-        // O loop varre o texto procurando todas as tags [BUSCA:...]
+        
+        // Gera os cards
         while ((match = searchRegex.exec(text)) !== null) {
             const termo = match[1].trim();
             if (termo) {
-                console.log("Gerando card para:", termo);
                 await this.searchAndCreateCard(termo);
             }
         }
     },
 
     async searchAndCreateCard(query) {
-        const data = await fetchTMDB(`/search/multi?query=${encodeURIComponent(query)}&include_adult=false&language=pt-BR`);
-        if (data && data.results && data.results.length > 0) {
-            const bestMatch = data.results.find(i => i.media_type === 'movie' || i.media_type === 'tv');
-            if (bestMatch) this.createCardHtml(bestMatch);
+        try {
+            const data = await fetchTMDB(`/search/multi?query=${encodeURIComponent(query)}&include_adult=false&language=pt-BR`);
+            if (data && data.results && data.results.length > 0) {
+                // Prioriza filmes ou séries que tenham poster
+                const bestMatch = data.results.find(i => (i.media_type === 'movie' || i.media_type === 'tv') && i.poster_path);
+                
+                if (bestMatch) {
+                    this.createCardHtml(bestMatch);
+                }
+            }
+        } catch (e) {
+            console.error("Erro ao buscar filme para card:", e);
         }
     },
 
     createCardHtml(item) {
         const div = document.createElement('div');
         div.className = 'message bot';
+        
+        // Estilo Inline para garantir visual limpo sem depender do CSS externo
+        div.style.background = "transparent";
+        div.style.padding = "0";
+        div.style.marginTop = "5px";
+        div.style.maxWidth = "85%";
+
         const poster = item.poster_path ? `${IMG_BASE}${item.poster_path}` : 'images/favicon.png';
         const title = item.title || item.name;
         const year = (item.release_date || item.first_air_date || '????').substring(0, 4);
         const type = item.media_type || 'movie';
 
         div.innerHTML = `
-            <div class="bryia-card">
-                <img src="${poster}" onerror="this.src='images/favicon.png'">
-                <div class="bryia-card-info">
-                    <h4>${title} <small>(${year})</small></h4>
-                    <a href="detalhes.html?id=${item.id}&type=${type}" class="btn-play-mini"><i class="fas fa-play"></i> Ver</a>
+            <div class="bryia-card" style="display: flex; gap: 10px; background: #222; padding: 10px; border-radius: 8px; border: 1px solid #333; align-items: center;">
+                <img src="${poster}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px;" onerror="this.src='images/favicon.png'">
+                <div class="bryia-card-info" style="display: flex; flex-direction: column; gap: 5px;">
+                    <h4 style="margin: 0; color: white; font-size: 0.9rem;">${title} <small style="color: #888;">(${year})</small></h4>
+                    <a href="detalhes.html?id=${item.id}&type=${type}" class="btn-play-mini" style="background: #e50914; color: white; text-decoration: none; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; text-align: center; width: fit-content; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fas fa-play"></i> Assistir
+                    </a>
                 </div>
             </div>`;
+            
         this.elements.msgs.appendChild(div);
         this.elements.msgs.scrollTop = this.elements.msgs.scrollHeight;
     },
@@ -1828,8 +1844,6 @@ const BryIA = {
     appendMsg(text, sender, isLoading = false) {
         const div = document.createElement('div');
         div.className = `message ${sender}`;
-
-        // CORREÇÃO: Agora damos um nome (ID) para a bolinha, assim podemos achá-la para apagar depois
         if (isLoading) div.id = 'loading-msg';
 
         div.innerHTML = isLoading
@@ -1838,8 +1852,6 @@ const BryIA = {
 
         this.elements.msgs.appendChild(div);
         this.elements.msgs.scrollTop = this.elements.msgs.scrollHeight;
-
-        // Retorna o nome para a função sendMessage usar
         return isLoading ? 'loading-msg' : null;
     }
 };
