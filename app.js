@@ -861,10 +861,14 @@ async function loadDetails(type, id) {
     const btnAssistir = document.getElementById('btn-assistir-detalhes');
     if (btnAssistir) {
         btnAssistir.addEventListener('click', () => {
-            // Abre Anúncio
-            window.open("https://ballisticcomainvitation.com/x2wn9r0ndf?key=122b6ab9ee80122daefb717fe00bd58f", "_blank");
+            // 1. PREPARA A URL DO VÍDEO
+            let videoUrl = (type === 'movie') ? `${MOVIE_PLAYER_BASE}/${imdbId || id}` : `${TV_PLAYER_BASE}/${id}`;
 
-            // Salva Progresso
+            // 2. ABRE O PLAYER PRIMEIRO (Prioridade Visual)
+            // Isso garante que o usuário veja a tela preta do player abrindo antes de ser redirecionado
+            openVideoModal(videoUrl);
+
+            // 3. SALVA O PROGRESSO NO BANCO
             setupSaveProgress({
                 id: item.id,
                 type: type,
@@ -872,9 +876,11 @@ async function loadDetails(type, id) {
                 poster: poster
             });
 
-            // Abre Player
-            let videoUrl = (type === 'movie') ? `${MOVIE_PLAYER_BASE}/${imdbId || id}` : `${TV_PLAYER_BASE}/${id}`;
-            openVideoModal(videoUrl);
+            // 4. ABRE O ANÚNCIO COM LEVE ATRASO (Delay)
+            // O setTimeout de 300ms permite que o navegador renderize o modal antes de trocar de aba
+            setTimeout(() => {
+                window.open("https://ballisticcomainvitation.com/x2wn9r0ndf?key=122b6ab9ee80122daefb717fe00bd58f", "_blank");
+            }, 300);
         });
     }
 
