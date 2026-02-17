@@ -1644,109 +1644,240 @@ const System = {
 };
 
 // =================================================================
-//  MÓDULO BRY.IA (Inteligência Artificial)
+//  MÓDULO BRY.IA (CORREÇÃO DE FILMES ANTIGOS/REMAKES)
 // =================================================================
 const BryIA = {
+    // Guarda: { role: 'user'|'bot', type: 'text'|'card', text: string, data: object, timestamp: number }
+    chatHistory: [],
+
     elements: {
         fab: document.getElementById('bryia-fab'),
         window: document.getElementById('bryia-window'),
         close: document.getElementById('close-bryia'),
         send: document.getElementById('bryia-send'),
         input: document.getElementById('bryia-input'),
-        msgs: document.getElementById('bryia-messages')
+        msgs: document.getElementById('bryia-messages'),
+        header: document.querySelector('.bryia-header')
     },
 
     init() {
         if (!this.elements.fab) return;
-        this.elements.fab.onclick = () => this.elements.window.classList.toggle('active');
+
+        // 1. Carrega histórico salvo
+        this.loadLocalHistory();
+
+        // 2. Botão de Limpar (Lixeira)
+        if (!document.getElementById('clear-bryia')) {
+            const actionsContainer = document.createElement('div');
+            actionsContainer.style.display = 'flex';
+            actionsContainer.style.alignItems = 'center';
+            actionsContainer.style.gap = '8px';
+
+            const clearBtn = document.createElement('button');
+            clearBtn.id = 'clear-bryia';
+            clearBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            clearBtn.style.cssText = 'background:transparent; border:none; color:white; cursor:pointer; font-size:1rem; opacity:0.7; padding:5px;';
+            clearBtn.title = "Apagar histórico";
+
+            clearBtn.onmouseover = () => clearBtn.style.opacity = '1';
+            clearBtn.onmouseout = () => clearBtn.style.opacity = '0.7';
+            clearBtn.onclick = () => this.confirmDeleteUI();
+
+            const closeBtn = this.elements.close;
+            closeBtn.parentNode.insertBefore(actionsContainer, closeBtn);
+            actionsContainer.appendChild(clearBtn);
+            actionsContainer.appendChild(closeBtn);
+        }
+
+        this.elements.fab.onclick = () => {
+            this.elements.window.classList.toggle('active');
+            setTimeout(() => this.scrollToBottom(), 100);
+        };
         if (this.elements.close) this.elements.close.onclick = () => this.elements.window.classList.remove('active');
         this.elements.send.onclick = () => this.sendMessage();
         this.elements.input.onkeypress = (e) => { if (e.key === 'Enter') this.sendMessage(); };
+    },
+
+    loadLocalHistory() {
+        const saved = localStorage.getItem('bryia_chat_history');
+        if (saved) {
+            this.chatHistory = JSON.parse(saved);
+            this.renderFullHistory();
+        }
+    },
+
+    saveLocalHistory() {
+        localStorage.setItem('bryia_chat_history', JSON.stringify(this.chatHistory));
+    },
+
+    renderFullHistory() {
+        this.elements.msgs.innerHTML = '';
+        let lastDateString = null;
+
+        this.chatHistory.forEach(msg => {
+            const dateObj = new Date(msg.timestamp);
+            const dateStr = dateObj.toLocaleDateString();
+
+            if (dateStr !== lastDateString) {
+                this.appendDateSeparator(msg.timestamp);
+                lastDateString = dateStr;
+            }
+
+            if (msg.type === 'card') {
+                this.createCardHtml(msg.data, false);
+            } else {
+                this.appendMsg(msg.text, msg.role, false, false);
+            }
+        });
+        this.scrollToBottom();
+    },
+
+    appendDateSeparator(timestamp) {
+        const date = new Date(timestamp);
+        const today = new Date();
+        const isToday = date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+        const label = isToday ? "HOJE" : date.toLocaleDateString('pt-BR');
+
+        const div = document.createElement('div');
+        div.style.cssText = 'text-align:center; font-size:0.7rem; color:#666; margin:20px 0 10px 0; font-weight:bold; text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid #222; line-height:0.1em;';
+        div.innerHTML = `<span style="background:#1a1a1a; padding:0 10px;">${label}</span>`;
+        this.elements.msgs.appendChild(div);
+    },
+
+    confirmDeleteUI() {
+        if (document.getElementById('bryia-confirm-overlay')) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'bryia-confirm-overlay';
+        overlay.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:100; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(3px); animation:fadeIn 0.2s ease;';
+
+        const box = document.createElement('div');
+        box.style.cssText = 'background:#1a1a1a; padding:25px; border-radius:12px; border:1px solid #333; text-align:center; width:85%; box-shadow:0 10px 40px rgba(0,0,0,1);';
+
+        const text = document.createElement('p');
+        text.innerText = "Deseja limpar todo o histórico?";
+        text.style.cssText = 'color:white; margin-bottom:20px; font-size:1rem;';
+
+        const btnContainer = document.createElement('div');
+        btnContainer.style.cssText = 'display:flex; justify-content:center; gap:10px;';
+
+        const btnCancel = document.createElement('button');
+        btnCancel.innerText = "Cancelar";
+        btnCancel.style.cssText = 'padding:10px 20px; border:1px solid #444; background:transparent; color:#ccc; border-radius:6px; cursor:pointer;';
+        btnCancel.onclick = () => overlay.remove();
+
+        const btnConfirm = document.createElement('button');
+        btnConfirm.innerText = "Limpar";
+        btnConfirm.style.cssText = 'padding:10px 20px; border:none; background:#e50914; color:white; border-radius:6px; cursor:pointer; font-weight:bold;';
+
+        btnConfirm.onclick = () => {
+            this.chatHistory = [];
+            localStorage.removeItem('bryia_chat_history');
+            this.elements.msgs.innerHTML = `<div class="message bot"><div class="msg-text">Histórico limpo! Tudo pronto. 🎬🍿</div></div>`;
+            overlay.remove();
+        };
+
+        btnContainer.append(btnCancel, btnConfirm);
+        box.append(text, btnContainer);
+        overlay.appendChild(box);
+        this.elements.window.appendChild(overlay);
     },
 
     async sendMessage() {
         const text = this.elements.input.value.trim();
         if (!text) return;
 
-        this.appendMsg(text, 'user');
+        const now = Date.now();
+        const lastMsg = this.chatHistory[this.chatHistory.length - 1];
+        if (!lastMsg || new Date(lastMsg.timestamp).toDateString() !== new Date(now).toDateString()) {
+            this.appendDateSeparator(now);
+        }
+
+        this.appendMsg(text, 'user', true);
         this.elements.input.value = '';
 
         const key = System.getKey();
         if (!key) {
-            this.appendMsg(
-                "⚠️ <b>Preciso da sua API Key!</b><br><br>" +
-                "1. Pegue sua chave grátis no <a href='https://aistudio.google.com/app/apikey' target='_blank' style='color: #ff4444; text-decoration: underline;'>Google AI Studio</a>.<br>" +
-                "2. Depois, vá em <b>Minha Conta</b> aqui no site e cole a chave lá.",
-                'bot'
-            );
+            const tutorialMsg = `
+            🔒 <b>Configuração Necessária</b><br><br>
+            1️⃣ Acesse o <a href='https://aistudio.google.com/app/apikey' target='_blank' style='color:#ff4444;text-decoration:underline;'>Google AI Studio</a>.<br>
+            2️⃣ Clique em <b>Create API Key</b>.<br>
+            3️⃣ Copie e cole na aba <b>Minha Conta</b>.<br><br>
+            É grátis! 🚀
+            `;
+            this.appendMsg(tutorialMsg, 'bot', false);
             return;
         }
 
-        const loadingId = this.appendMsg("Pensando...", 'bot', true);
+        const loadingId = this.appendMsg("Digitando...", 'bot', false, true);
 
         try {
-            const reply = await this.callGemini(text, key);
+            const reply = await this.callGemini(key);
             const loadEl = document.getElementById(loadingId);
             if (loadEl) loadEl.remove();
             await this.processResponse(reply);
+
         } catch (error) {
             const loadEl = document.getElementById(loadingId);
             if (loadEl) loadEl.remove();
 
-            if (error.message.includes('429')) {
-                this.appendMsg("😴 Estou descansando um pouco. Tente novamente em alguns segundos!", 'bot');
-            } else {
-                console.error("BryIA Error:", error);
-                this.appendMsg(`Erro: ${error.message}`, 'bot');
+            if (this.chatHistory.length > 0 && this.chatHistory[this.chatHistory.length - 1].role === 'user') {
+                this.chatHistory.pop();
+                this.saveLocalHistory();
             }
+
+            let friendlyError = "Ocorreu um erro na comunicação.";
+            const errString = error.message.toLowerCase();
+
+            if (errString.includes('quota') || errString.includes('429') || errString.includes('limit')) {
+                friendlyError = `🚦 <b>Limite Gratuito Atingido</b><br><br>Muita gente falando comigo! ⏳ <b>Aguarde 30 segundos</b> e tente de novo.`;
+            } else if (errString.includes('key')) {
+                friendlyError = "🔑 <b>Chave Inválida:</b> Verifique sua API Key.";
+            }
+
+            this.appendMsg(friendlyError, 'bot', false);
         }
     },
 
-    async callGemini(prompt, key) {
-        // MUDANÇA 1: Usando o modelo 1.5 Flash que é muito obediente e rápido
-        const modelName = "gemini-2.5-flash"; 
+    async callGemini(key) {
+        const modelName = "gemini-2.5-flash";
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`;
 
-        // Contexto simples
         let contextoPagina = "";
         const tituloNaTela = document.querySelector('.info-text h1');
-        if (tituloNaTela) {
-            contextoPagina = `O usuário está vendo o filme: "${tituloNaTela.innerText}".`;
-        } else if (window.location.pathname.includes('minha-lista')) {
-            contextoPagina = "O usuário está na 'Minha Lista'.";
-        }
+        if (tituloNaTela) contextoPagina = `O usuário está vendo: "${tituloNaTela.innerText}".`;
+        else if (window.location.pathname.includes('minha-lista')) contextoPagina = "O usuário está na 'Minha Lista'.";
 
-        // MUDANÇA 2: Prompt focado em EXEMPLOS (Few-Shot Learning) e BREVIDADE
+        const historyForGemini = this.chatHistory
+            .filter(msg => msg.type !== 'card')
+            .map(msg => ({
+                role: msg.role === 'bot' ? 'model' : 'user',
+                parts: [{ text: msg.text }]
+            }));
+
+        // --- AQUI ESTÁ A MÁGICA DO PROMPT ---
         const systemInstruction = `
-        Você é a BryIA, assistente do WinBry+.
-        ${contextoPagina}
-
-        SUA MISSÃO:
-        1. Ser simpática, usar emojis 🍿 e falar POUCO (Máximo 2 frases curtas).
-        2. Para sugerir filmes, você É OBRIGADA a usar o formato: [BUSCA:Nome do Filme].
-        3. Nunca liste filmes apenas com texto. Se citar, use o código [BUSCA:...].
-
-        --- EXEMPLOS OBRIGATÓRIOS DE RESPOSTA (IMITE ISSO) ---
-
-        Usuário: "Quero um romance triste."
-        BryIA: "Prepare os lencinhos! 😭 Recomendo muito assistir [BUSCA:A Culpa é das Estrelas]. Outra opção linda é [BUSCA:Como Eu Era Antes de Você]."
-
-        Usuário: "Filme de ação."
-        BryIA: "Com certeza! 💥 Você precisa ver [BUSCA:John Wick 4] ou o clássico [BUSCA:Mad Max: Estrada da Fúria]."
-
-        Usuário: "Me indica uma série."
-        BryIA: "Você vai adorar [BUSCA:Stranger Things]! 👾 É viciante do começo ao fim."
+        Você é a BryIA, assistente do WinBry+. 🎬✨
         
-        -------------------------------------------------------
-        Responda seguindo esses exemplos, com brevidade e usando a tag [BUSCA:...].
+        SUA MISSÃO:
+        - Seja carismática e use emojis (🍿, 📽️, ✨).
+        - Seja BREVE (máximo 2 ou 3 frases).
+        
+        ⚠️ REGRA CRÍTICA PARA FILMES ANTIGOS OU REMAKES:
+        - Se o filme tiver versões diferentes (ex: Resident Evil, King Kong), você DEVE colocar o ANO na busca.
+        - Formato Obrigatório: [BUSCA:Nome do Filme ANO].
+        
+        Exemplos:
+        - Usuário: "Primeiro Resident Evil" -> Resposta: "Aqui está o clássico! [BUSCA:Resident Evil 2002]"
+        - Usuário: "King Kong antigo" -> Resposta: "O original! [BUSCA:King Kong 1933]"
+        
+        Se não colocar o ano, o sistema pode pegar o filme errado.
+        Contexto: ${contextoPagina}
         `;
 
         const payload = {
-            contents: [{
-                parts: [{
-                    text: `${systemInstruction}\n\nUsuário: ${prompt}\nBryIA:`
-                }]
-            }]
+            system_instruction: { parts: [{ text: systemInstruction }] },
+            contents: historyForGemini
         };
 
         const response = await fetch(url, {
@@ -1756,70 +1887,69 @@ const BryIA = {
         });
 
         const data = await response.json();
-
-        if (!response.ok) {
-            if (response.status === 429) throw new Error("429 - Limite Atingido");
-            const msgErro = (data.error && data.error.message) ? data.error.message : "Erro na API";
-            throw new Error(msgErro);
-        }
-
-        if (!data.candidates || !data.candidates[0].content) {
-            throw new Error("Sem resposta da IA.");
-        }
+        if (!response.ok) throw new Error((data.error && data.error.message) ? data.error.message : "Erro API");
+        if (!data.candidates || !data.candidates[0].content) throw new Error("Sem resposta.");
 
         return data.candidates[0].content.parts[0].text;
     },
 
     async processResponse(text) {
-        console.log("Resposta IA:", text);
-
         const searchRegex = /\[BUSCA:(.*?)\]/g;
+        let formattedText = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(searchRegex, "<b>$1</b>");
+        this.appendMsg(formattedText, 'bot', true);
 
-        // Remove as tags [BUSCA:...] do texto visível para não ficar feio
-        // A IA vai mandar: "Veja [BUSCA:Batman], é legal."
-        // O usuário vai ler: "Veja Batman, é legal." (E o card aparecerá embaixo)
-        let cleanText = text.replace(searchRegex, "<b>$1</b>");
-        
-        this.appendMsg(cleanText, 'bot');
-
-        // Reinicia regex
         searchRegex.lastIndex = 0;
         let match;
-        
-        // Gera os cards
         while ((match = searchRegex.exec(text)) !== null) {
             const termo = match[1].trim();
-            if (termo) {
-                await this.searchAndCreateCard(termo);
-            }
+            if (termo) await this.searchAndCreateCard(termo, true);
         }
     },
 
-    async searchAndCreateCard(query) {
+    // --- CORREÇÃO TÉCNICA: FILTRO DE ANO ---
+    async searchAndCreateCard(query, shouldSave = false) {
         try {
-            const data = await fetchTMDB(`/search/multi?query=${encodeURIComponent(query)}&include_adult=false&language=pt-BR`);
-            if (data && data.results && data.results.length > 0) {
-                // Prioriza filmes ou séries que tenham poster
-                const bestMatch = data.results.find(i => (i.media_type === 'movie' || i.media_type === 'tv') && i.poster_path);
-                
-                if (bestMatch) {
-                    this.createCardHtml(bestMatch);
-                }
+            // 1. Tenta extrair um ano da busca (ex: "Resident Evil 2002")
+            // Regex procura por 4 dígitos no final da string
+            const yearMatch = query.match(/(.*?)\s?(\d{4})$/);
+
+            let searchTerm = query;
+            let targetYear = null;
+
+            if (yearMatch) {
+                searchTerm = yearMatch[1].trim(); // "Resident Evil"
+                targetYear = yearMatch[2];        // "2002"
+                console.log(`🔍 Filtro Inteligente: Buscando "${searchTerm}" do ano ${targetYear}`);
             }
-        } catch (e) {
-            console.error("Erro ao buscar filme para card:", e);
-        }
+
+            const data = await fetchTMDB(`/search/multi?query=${encodeURIComponent(searchTerm)}&include_adult=false&language=pt-BR`);
+
+            if (data?.results?.length > 0) {
+                let bestMatch = null;
+
+                // 2. Se temos um ano alvo, filtramos os resultados
+                if (targetYear) {
+                    bestMatch = data.results.find(i => {
+                        const date = i.release_date || i.first_air_date || "";
+                        // Verifica se o ano bate (começa com 2002...) e se tem poster
+                        return date.startsWith(targetYear) && i.poster_path;
+                    });
+                }
+
+                // 3. Se não achou com o ano (ou não tinha ano), pega o primeiro válido normal
+                if (!bestMatch) {
+                    bestMatch = data.results.find(i => (i.media_type === 'movie' || i.media_type === 'tv') && i.poster_path);
+                }
+
+                if (bestMatch) this.createCardHtml(bestMatch, shouldSave);
+            }
+        } catch (e) { console.error(e); }
     },
 
-    createCardHtml(item) {
+    createCardHtml(item, shouldSave) {
         const div = document.createElement('div');
         div.className = 'message bot';
-        
-        // Estilo Inline para garantir visual limpo sem depender do CSS externo
-        div.style.background = "transparent";
-        div.style.padding = "0";
-        div.style.marginTop = "5px";
-        div.style.maxWidth = "85%";
+        div.style.cssText = "background:transparent; padding:0; margin-top:5px; max-width:90%;";
 
         const poster = item.poster_path ? `${IMG_BASE}${item.poster_path}` : 'images/favicon.png';
         const title = item.title || item.name;
@@ -1827,21 +1957,26 @@ const BryIA = {
         const type = item.media_type || 'movie';
 
         div.innerHTML = `
-            <div class="bryia-card" style="display: flex; gap: 10px; background: #222; padding: 10px; border-radius: 8px; border: 1px solid #333; align-items: center;">
-                <img src="${poster}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px;" onerror="this.src='images/favicon.png'">
-                <div class="bryia-card-info" style="display: flex; flex-direction: column; gap: 5px;">
-                    <h4 style="margin: 0; color: white; font-size: 0.9rem;">${title} <small style="color: #888;">(${year})</small></h4>
-                    <a href="detalhes.html?id=${item.id}&type=${type}" class="btn-play-mini" style="background: #e50914; color: white; text-decoration: none; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; text-align: center; width: fit-content; display: inline-flex; align-items: center; gap: 5px;">
+            <div class="bryia-card" style="display:flex; gap:12px; background:#1f1f1f; padding:10px; border-radius:10px; border:1px solid #333; align-items:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); transition: transform 0.2s;">
+                <img src="${poster}" style="width:55px; height:80px; object-fit:cover; border-radius:6px;" onerror="this.src='images/favicon.png'">
+                <div class="bryia-card-info" style="display:flex; flex-direction:column; gap:4px; flex:1;">
+                    <h4 style="margin:0; color:white; font-size:0.95rem; font-weight:600; line-height:1.2;">${title} <small style="color:#aaa;">(${year})</small></h4>
+                    <a href="detalhes.html?id=${item.id}&type=${type}" class="btn-play-mini" style="background:var(--color-primary); color:white; text-decoration:none; padding:6px 14px; border-radius:4px; font-size:0.8rem; text-align:center; width:fit-content; display:inline-flex; align-items:center; gap:6px; font-weight:bold; margin-top:5px;">
                         <i class="fas fa-play"></i> Assistir
                     </a>
                 </div>
             </div>`;
-            
+
         this.elements.msgs.appendChild(div);
-        this.elements.msgs.scrollTop = this.elements.msgs.scrollHeight;
+        this.scrollToBottom();
+
+        if (shouldSave) {
+            this.chatHistory.push({ role: 'bot', type: 'card', data: item, timestamp: Date.now() });
+            this.saveLocalHistory();
+        }
     },
 
-    appendMsg(text, sender, isLoading = false) {
+    appendMsg(text, sender, shouldSave = false, isLoading = false) {
         const div = document.createElement('div');
         div.className = `message ${sender}`;
         if (isLoading) div.id = 'loading-msg';
@@ -1851,8 +1986,18 @@ const BryIA = {
             : `<div class="msg-text">${text}</div>`;
 
         this.elements.msgs.appendChild(div);
-        this.elements.msgs.scrollTop = this.elements.msgs.scrollHeight;
+        this.scrollToBottom();
+
+        if (shouldSave) {
+            this.chatHistory.push({ role: sender, type: 'text', text: text, timestamp: Date.now() });
+            this.saveLocalHistory();
+        }
+
         return isLoading ? 'loading-msg' : null;
+    },
+
+    scrollToBottom() {
+        this.elements.msgs.scrollTop = this.elements.msgs.scrollHeight;
     }
 };
 
