@@ -9,8 +9,8 @@ const IMG_BASE = "https://image.tmdb.org/t/p/w500";
 const BANNER_BASE = "https://image.tmdb.org/t/p/original";
 const LANGUAGE = "&language=pt-BR";
 
-const MOVIE_PLAYER_BASE = "https://playerflixapi.com/filme";
-const TV_PLAYER_BASE = "https://playerflixapi.com/serie";
+const MOVIE_PLAYER_BASE = "https://myembed.biz/filme";
+const TV_PLAYER_BASE = "https://myembed.biz/serie";
 
 // ⚠️ CONFIGURAÇÕES FIREBASE (Suas Chaves)
 const firebaseConfig = {
